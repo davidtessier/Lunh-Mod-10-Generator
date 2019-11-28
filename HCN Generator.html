@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="HCN Generator">
+  <meta name="author" content="David Tessier">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HCN Generator</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous">
+  </script>
+  <script>
+    (function webpackUniversalModuleDefinition(root, factory) {
+      if (typeof exports === 'object' && typeof module === 'object')
+        module.exports = factory();
+      else if (typeof define === 'function' && define.amd)
+        define("luhn", [], factory);
+      else if (typeof exports === 'object')
+        exports["luhn"] = factory();
+      else
+        root["luhn"] = factory();
+    })(this, function () {
+      return (function (modules) {
+        var installedModules = {};
+
+        function __webpack_require__(moduleId) {
+          if (installedModules[moduleId]) {
+            return installedModules[moduleId].exports;
+          }
+          var module = installedModules[moduleId] = {
+            i: moduleId,
+            l: false,
+            exports: {}
+          };
+          modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+          module.l = true;
+          return module.exports;
+        }
+        __webpack_require__.m = modules;
+        __webpack_require__.c = installedModules;
+        __webpack_require__.d = function (exports, name, getter) {
+          if (!__webpack_require__.o(exports, name)) {
+            Object.defineProperty(exports, name, {
+              configurable: false,
+              enumerable: true,
+              get: getter
+            });
+          }
+        };
+        __webpack_require__.n = function (module) {
+          var getter = module && module.__esModule ?
+            function getDefault() {
+              return module['default'];
+            } :
+            function getModuleExports() {
+              return module;
+            };
+          __webpack_require__.d(getter, 'a', getter);
+          return getter;
+        };
+        __webpack_require__.o = function (object, property) {
+          return Object.prototype.hasOwnProperty.call(object, property);
+        };
+        __webpack_require__.p = "";
+        return __webpack_require__(__webpack_require__.s = 0);
+      })
+
+      ([
+        (function (module, exports, __webpack_require__) {
+          "use strict";
+          module.exports = {
+            checksum: function checksum(input) {
+              var string = input.toString();
+              var sum = 0;
+              var parity = 2;
+              for (var i = string.length - 1; i >= 0; i--) {
+                var digit = Math.max(parity, 1) * string[i];
+                sum += digit > 9 ? digit.toString().split('').map(Number).reduce(
+                  function (a, b) {
+                    return a + b;
+                  }, 0) : digit;
+                parity *= -1;
+              }
+              sum %= 10;
+              return sum > 0 ? 10 - sum : 0;
+            },
+            generate: function generate(input, inputOptions) {
+              var string = input.toString();
+              var options = {
+                pad: 0,
+                weightFactor: 2
+              };
+
+              // option pad
+              if (typeof inputOptions !== 'undefined') {
+                if (typeof inputOptions.pad !== 'undefined') {
+                  options.pad = inputOptions.pad;
+                  if (options.pad > string.length) {
+                    string = Array(options.pad - String(string).length).join(
+                      '0') + string;
+                  }
+                }
+              }
+              return string + this.checksum(string);
+            },
+            random: function random(input, inputOptions) {
+              function getRandomStringOfNumbers(length) {
+                var randomStringOfNumbers = '';
+
+                while (randomStringOfNumbers.length < length) {
+                  var random = Math.random().toString();
+
+                  randomStringOfNumbers += random.substr(2, random.length);
+
+                  if (randomStringOfNumbers.length > length) {
+                    randomStringOfNumbers = randomStringOfNumbers.substr(0,
+                      length);
+                  }
+                }
+                return randomStringOfNumbers;
+              }
+
+              return this.generate(getRandomStringOfNumbers(input - 1), inputOptions);
+            },
+            validate: function validate(input) {
+              return this.checksum(input.toString().slice(0, -1)) === parseInt(input %
+                10);
+            }
+          };
+        })
+      ]);
+    });
+  </script>
+</head>
+
+<body style="text-align: center;">
+  <h1>HCN Generator</h1>
+  <p>This tool creates 10 digit numbers using the Luhn algorith (AKA Modulo 10). <br />
+    This is the same method used by MOHLTC to create health card numbers.<br />
+    Use this tool to create valid health card numbers for development and testing.
+  </p>
+  <h2 id="demo"></h2>
+  <button value="Refresh Page" onClick="window.location.reload();">Generate New Number</button>
+  <script>
+    document.getElementById("demo").innerHTML = luhn.random(10);
+  </script>
+  <script>
+  </script>
+</body>
+
+</html>
